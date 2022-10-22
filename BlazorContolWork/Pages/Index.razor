@@ -1,0 +1,13 @@
+﻿@page "/"
+@inject SingletonServices singleton
+<PageTitle>Index</PageTitle>
+@if(singleton.LogIn)
+{
+    <h1>Hello, @singleton.user.Name!</h1>
+    <h3>You have entered your profile!</h3>
+}
+else
+{
+    <h1>Hello, user!</h1>
+    <h3>Try to register or log in to your profile!</h3>
+}

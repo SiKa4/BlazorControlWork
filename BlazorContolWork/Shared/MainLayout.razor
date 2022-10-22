@@ -1,0 +1,47 @@
+﻿@inherits LayoutComponentBase
+@inject SingletonServices singleton
+
+<PageTitle>BlazorContolWork</PageTitle>
+
+<div class="page">
+     @if (openNavMenu)
+    {
+        <div class="sidebar">
+            <NavMenu />
+            <button @onclick="clickBtnNavMenu" class="btn btn-primary btn-lg">➡</button>
+        </div>
+    }
+
+    <main>
+        <div class="top-row px-4">
+            @if(!singleton.LogIn)
+            {
+                 <a href="registr">Reg</a>
+                <a href="logIn">Log In</a>
+            }
+            else
+            {
+                <a href="userprofile">@singleton.user.Name</a>
+            }
+           
+        </div>
+
+        <div class="top-row-left px-4">
+            @if (!openNavMenu)
+            {
+                <button @onclick="clickBtnNavMenu" class="btn btn-primary btn-lg">⬅</button>
+            }
+        </div>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+@code {
+    private bool openNavMenu = false;
+
+    public void clickBtnNavMenu()
+    {
+        openNavMenu = !openNavMenu;
+    }
+}

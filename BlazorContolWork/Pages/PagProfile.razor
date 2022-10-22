@@ -1,0 +1,17 @@
+﻿@page "/userprofile"
+@inject SingletonServices singleton
+@inject NavigationManager NavigationManager
+
+<h3>Profile</h3>
+<h4>Name : @singleton.user.Name</h4>
+<h4>Surname : @singleton.user.Surname</h4>
+<h4>Email : @singleton.user.Login</h4>
+<h4>Email : @singleton.user.Email</h4>
+<button type="button" class="btn btn-danger" @onclick = "BtnOutput">Output</button>
+@code {
+    private void BtnOutput()
+    {
+        singleton.LogIn = false;
+        NavigationManager.NavigateTo("/");
+    }
+}
