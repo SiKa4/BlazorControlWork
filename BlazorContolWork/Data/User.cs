@@ -9,6 +9,9 @@ namespace BlazorContolWork.Data
         [BsonIgnoreIfDefault]
         public ObjectId _id;
 
+        [BsonIgnoreIfDefault]
+        public ObjectId _idPhoto;
+
         public string Name { get; set; }
         public string Surname { get; set; }
         public string Login { get; set; }

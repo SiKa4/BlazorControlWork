@@ -2,43 +2,74 @@
 @using Microsoft.Extensions.Logging
 @inject SingletonServices singleton
 @inject NavigationManager NavigationManager
+@inject IWebHostEnvironment env
 
 <h3>Profile</h3>
+
+<p>
+    <img id="image" class="figure-img" src="@photoPath" height="100" width="100"/>
+</p>
+
 <h4>Name : @singleton.user.Name</h4>
 <h4>Surname : @singleton.user.Surname</h4>
 <h4>Login : @singleton.user.Login</h4>
 <h4>Email : @singleton.user.Email</h4>
-  <div class="mb-3">
-  <label for="formFile" class="form-label">Image Profile</label>
-  <InputFile OnChange="@LoadFiles" multiple />
-  <h4>@stringPath</h4>
+
+<div class="mb-3">
+    <InputFile OnChange="@OnInputFileChange" multiple/>
 </div>
+
 <button type="button" class="btn btn-danger" @onclick = "BtnOutput">Output</button>
+<button type="button" class="btn btn-danger" @onclick="BtnSave">Save</button>
+
 @code {
-    private string stringPath = "";
+    private string stringPath = string.Empty;
+    private string fileName = string.Empty;
+    private string photoPath = string.Empty;
+
     private int maxAllowedFiles = 1;
+    IReadOnlyList<IBrowserFile> selectedFiles;
+
+    protected override void OnInitialized()
+    {
+        FileSystemService.DownloadToLocal(env.WebRootPath, singleton.user);
+        photoPath = "Images/photo.jpeg";
+    }
+
     private void BtnOutput()
     {
         singleton.LogIn = false;
         NavigationManager.NavigateTo("/");
     }
 
-    private async Task LoadFiles(InputFileChangeEventArgs e)
+    private void BtnSave()
     {
-        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+        if (stringPath != string.Empty)
         {
-            try
-            {
-                var trustedFileNameForFileStorage = Path.GetRandomFileName();
-                var path = Path.Combine(Environment.ContentRootPath,
-                        Environment.EnvironmentName, "unsafe_uploads",
-                        trustedFileNameForFileStorage);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("File: {Filename} Error: {Error}", 
-                    file.Name, ex.Message);
-            }
+            FileSystemService.UploadImageToDb(stringPath, fileName, singleton.user);
+            photoPath = "Images/photo.jpeg";
         }
+    }
+
+    private void OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        selectedFiles = e.GetMultipleFiles();
+        OnSubmit();
+        this.StateHasChanged();
+    }
+
+    private async void OnSubmit()
+    {
+        foreach (var file in selectedFiles)
+        {
+            Stream stream = file.OpenReadStream(10000000000);
+            stringPath = $"{env.WebRootPath}\\Images\\{file.Name}";
+            fileName = file.Name;
+            FileStream fs = File.Create(stringPath);
+            await stream.CopyToAsync(fs);
+            stream.Close();
+            fs.Close();
+        }
+        this.StateHasChanged();
     }
 }
