@@ -76,3 +76,6 @@ a, .btn-link {
         height: 100%;
     }
 }
+.img-rad{
+    border-radius: 50%;
+}

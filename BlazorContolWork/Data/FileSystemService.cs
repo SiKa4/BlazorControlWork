@@ -16,7 +16,7 @@ namespace BlazorContolWork.Data
             var gridFS = new GridFSBucket(database);
         }
 
-        static public void UploadImageToDb(string path, string fileName, User user)
+        static public async Task UploadImageToDb(string path, string fileName, User user)
         {
             var client = new MongoClient();
             var database = client.GetDatabase("ImageDB");
@@ -26,8 +26,8 @@ namespace BlazorContolWork.Data
             {
                 gridFS.UploadFromStream(fileName, fs);
             }
-            File.Delete(path);
-            SearchByNameReplaceUser(fileName, user);
+            //File.Delete(path);
+            await SearchByNameReplaceUser(fileName, user);
         }
 
         private static async Task SearchByNameReplaceUser(string fileName, User user)
@@ -41,7 +41,22 @@ namespace BlazorContolWork.Data
             user._idPhoto = fileInfos.Id;
             MongoExamples.ReplaceById(user._id, user);
         }
+        
+        public static string GetNameInDb(User user)
+        {
+            var client = new MongoClient();
+            var database = client.GetDatabase("ImageDB");
+            var gridFS = new GridFSBucket(database);
 
+            var filter = Builders<GridFSFileInfo>.Filter.Eq("_id", user._idPhoto);
+            string fileNames = string.Empty;
+
+            using (var cursor = gridFS.Find(filter))
+            {
+                fileNames = cursor.FirstOrDefault().Filename;
+            }
+            return fileNames;
+        }
 
         static public void DownloadToLocal(string webRootPath, User user)
         {
@@ -49,7 +64,7 @@ namespace BlazorContolWork.Data
             var database = client.GetDatabase("ImageDB");
             var gridFS = new GridFSBucket(database);
 
-            using (Stream fs = new FileStream($"{webRootPath}\\Images\\photo.jpeg", FileMode.Create))
+            using (Stream fs = new FileStream($"{webRootPath}\\Images\\{GetNameInDb(user)}", FileMode.Create))
             {
                 try
                 {
@@ -57,6 +72,7 @@ namespace BlazorContolWork.Data
                 }
                 catch { }
             }
+            
         }
     }
 }
