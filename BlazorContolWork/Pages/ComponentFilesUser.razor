@@ -39,7 +39,7 @@ else
 @code {
     List<IBrowserFile> files = new();
     int countFile;
-    private bool isLoading;
+    private bool isLoading = true;
 
     private string stringPath = string.Empty;
     private string fileName = string.Empty;
@@ -64,13 +64,12 @@ else
 
     private void OnInputFileChange(InputFileChangeEventArgs e)
     {
-        isLoading = true;
+        isLoading = false;
         files.Clear();
 
         foreach (var file in e.GetMultipleFiles(countFile))
         {
             files.Add(file);
         }
-        isLoading = false;
     }
 }
