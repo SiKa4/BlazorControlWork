@@ -31,8 +31,8 @@
 
     protected override void OnInitialized()
     {
-        FileSystemService.DownloadToLocal(env.WebRootPath, singleton.user);
-        photoPath = $"\\Images\\{FileSystemService.GetNameInDb(singleton.user)}";
+        PhotoSystemService.DownloadToLocal(env.WebRootPath, singleton.user);
+        photoPath = $"\\Images\\{PhotoSystemService.GetNameInDb(singleton.user)}";
     }
 
     private void BtnOutput()
@@ -45,8 +45,8 @@
     {
         if (stringPath != string.Empty)
         {
-            await FileSystemService.UploadImageToDb(stringPath, fileName, singleton.user);
-            photoPath = $"\\Images\\{FileSystemService.GetNameInDb(singleton.user)}";
+            await PhotoSystemService.UploadImageToDb(stringPath, fileName, singleton.user);
+            photoPath = $"\\Images\\{PhotoSystemService.GetNameInDb(singleton.user)}";
         }
     }
 

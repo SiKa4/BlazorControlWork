@@ -1,0 +1,76 @@
+﻿@inject IWebHostEnvironment env
+
+<h3 class="text-center">Files Tabel</h3>
+<div>
+    <input type="number" id="form3Example1c" @bind="countFile" />
+    <InputFile OnChange="@OnInputFileChange" multiple/>
+</div>
+
+@if (isLoading)
+{
+    <p>Uploading...</p>
+}
+else
+{
+    <p class="text-center fw-bold mb-5 mx-1 mx-md-4 mt-4">
+        <table class="table table-bordered">
+            <thead class="alert-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Size</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var file in files)
+                {
+                    <tr>
+                        <td>@file.Name</td>
+                        <td>@file.Size</td>
+                        <td><button class="btn btn-success" @onclick="(() => AddFilesBtn(file))">Add</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </p>
+}
+
+
+@code {
+    List<IBrowserFile> files = new();
+    int countFile;
+    private bool isLoading;
+
+    private string stringPath = string.Empty;
+    private string fileName = string.Empty;
+
+    private async Task AddFilesBtn(IBrowserFile file)
+    {
+        try
+        {
+            Stream stream = file.OpenReadStream(10000000000);
+            stringPath = $"{env.WebRootPath}\\Files\\{file.Name}";
+            fileName = file.Name;
+            FileStream fs = File.Create(stringPath);
+            await stream.CopyToAsync(fs);
+            stream.Close();
+            fs.Close();
+            FileSystemService.UploadFileToDb(stringPath, fileName);
+        }
+        catch { }
+
+        files.Remove(file);
+    }
+
+    private void OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        files.Clear();
+
+        foreach (var file in e.GetMultipleFiles(countFile))
+        {
+            files.Add(file);
+        }
+        isLoading = false;
+    }
+}
